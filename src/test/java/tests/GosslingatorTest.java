@@ -1,77 +1,90 @@
 package tests;
 
-import org.junit.After;
-import org.junit.Assert;
+import base.TestBase;
+import com.codeborne.selenide.*;
+import com.codeborne.selenide.junit.SoftAsserts;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 
-public class GosslingatorTest {
+import static com.codeborne.selenide.CollectionCondition.size;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.textCaseSensitive;
+import static com.codeborne.selenide.Selenide.*;
 
-    private WebDriver driver;
+public class GosslingatorTest extends TestBase {
+
+    //@Rule
+    //public ScreenShooter screenShooter = ScreenShooter.failedTests().succeededTests();
+
+    @Rule
+    public SoftAsserts softAsserts = new SoftAsserts();
 
     @Before
     public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/chromedriver75_mac");
-        driver = new ChromeDriver();
-        driver.get("http://localhost:8888/gosslingator.php");
+        open("/gosslingator.php");
     }
 
     @Test
     public void itShouldDisplayTitle() {
-        Assert.assertEquals("GOSLINGATE ME", driver.findElement(By.cssSelector(".ryan-title")).getText());
+        $(".ryan-title").shouldHave(textCaseSensitive("GOSLINGATE ME"));
     }
 
     @Test
     public void itShouldAddOneRyan() {
-        driver.findElement(By.id("addRyan")).click();
+        Configuration.assertionMode = AssertionMode.SOFT;  //screenshot("anton");
+        addRyan();
+        screenshot("anton");
 
-        String actualNumberOfRyans = driver.findElement(By.id("ryanCounter")).getText();
-        Assert.assertEquals("1", actualNumberOfRyans);
 
-        System.out.println("Number of ryans: " + driver.findElement(By.cssSelector("div.ryan-counter h2")).getText());
-        Assert.assertEquals("ryan", driver.findElement(By.cssSelector("div.ryan-counter h3")).getText());
+        $("div.ryan-counter h2").shouldHave(text("1"));
+        $("div.ryan-counter h3").shouldHave(text("ryan"));
     }
 
     @Test
     public void itShouldTwoRyans() {
-        driver.findElement(By.id("addRyan")).click();
-        driver.findElement(By.id("addRyan")).click();
+        addRyan(2);
 
-        String actualNumberOfRyans = driver.findElement(By.id("ryanCounter")).getText();
-        String actualRyanDescription = driver.findElement(By.cssSelector("div.ryan-counter h3")).getText();
+        $("div.ryan-counter h2").shouldHave(text("2"));
+        $("div.ryan-counter h3").shouldHave(text("ryans"));
 
-        Assert.assertEquals("2", actualNumberOfRyans);
-        Assert.assertEquals("ryans", actualRyanDescription);
     }
 
     @Test
     public void itShouldDisplayWarningMessage() {
-        WebElement addRyanButton = driver.findElement(By.id("addRyan"));
-        for (int i = 0; i < 50; i++) {
-            addRyanButton.click();
-        }
-        Assert.assertEquals(
+        addRyan(50);
+        $(By.cssSelector("h1.tooManyRyans")).shouldHave(Condition.exactText(
                 "NUMBER OF\n" +
                         "RYANS\n" +
                         "IS TOO DAMN\n" +
-                        "HIGH",
-                driver.findElement(By.cssSelector("h1.tooManyRyans")).getText()
-        );
+                        "HIGH"
+        ));
     }
 
     @Test
     public void itShouldDisplayNoRyanOnPageOpen() {
-        Assert.assertEquals(0, driver.findElements(By.cssSelector("img")).size());
+
+        $$("img").shouldHave(size(0));
     }
 
-    @After
-    public void tearDown() {
-        driver.close();
-        driver.quit();
+    @Test
+    public void itShouldRemoveRyanHeadByClickingOnImage() {
+        addRyan(30);
+
+        $$("img").forEach(SelenideElement::click);
+
+        $$("img").shouldHave(size(0));
     }
+
+    private void addRyan() {
+        $(By.id("addRyan")).click();
+    }
+
+    private void addRyan(int numberOfRyans) {
+        for (int i = 0; i < numberOfRyans; i++) {
+            $(By.id("addRyan")).click();
+        }
+    }
+
 }

@@ -1,0 +1,55 @@
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <title>Savings Calculator</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Exo:300i|Russo+One" rel="stylesheet">
+  <link rel="stylesheet" href="savings_calculator/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item"><a class="nav-link" href="gosslingator.php">Gosslingator</a></li><li class="nav-item"><a class="nav-link" href="savingscalculator.php">Savings Calculator</a></li><li class="nav-item"><a class="nav-link" href="spelleology.php">Spelleology</a></li><li class="nav-item"><a class="nav-link" href="sortinghat.php">Sorting Hat</a></li><li class="nav-item"><a class="nav-link" href="fellowship.php">Fellowship</a></li><li class="nav-item"><a class="nav-link" href="waitforit.php">Wait for it</a></li><li class="nav-item"><a class="nav-link" href="tabulka.php">Tabulka</a></li>    </ul>
+  </div>
+</nav>
+<div id="app" class="container"><!----> <h1>Savings Calculator</h1> <div class="row"><div class="col"><h2>Request saving</h2> <div class="input-group mb-3"><select id="fundSelect" class="form-control"><option value="" disabled="disabled" selected="selected">Select your fund</option> <option value="[object Object]">Handelsbanken Aktiv 100</option><option value="[object Object]">Hoggwart's Fund</option><option value="[object Object]">Fellowship investment group</option><option value="[object Object]">McDuck's safe</option><option value="[object Object]">Batman's Cave Development</option><option value="[object Object]">Death Star real estate</option><option value="[object Object]">Tom &amp; Jerry corp</option></select></div> <div class="input-group mb-3"><input type="number" placeholder="One time investment" step="1000" id="oneTimeInvestmentInput" class="form-control"></div> <div class="input-group mb-3"><input type="number" placeholder="Period in years" step="1" id="yearsInput" class="form-control"></div> <div class="input-group mb-3"><input type="email" placeholder="Email address" step="1" id="emailInput" class="form-control"></div> <button class="btn btn-block" disabled="disabled">Apply for saving
+      </button> <!----></div> <div class="col"><h2 class="recent-requests-header">Recent requests
+        <span>1</span></h2> <ul class="saving-list"><li><div class="saving-detail"><div class="row"><div class="col amounts"><p>Total income<span>45 152.78 kr</span></p> <p>Net income <span>41 323.75 kr</span></p> <p>Taxes <span>3 829.03 kr</span></p> <div class="buttons"><button class="saving-detail">detail</button> <button class="remove-saving">remove</button></div></div> <div class="col"><p class="fund-description">Hoggwart's Fund</p> <p class="risk">Medium</p></div></div></div></li></ul></div></div></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+<script src="savings_calculator/index.js"></script>
+<script type="text/x-template" id="modal-template">
+  <transition name="modal">
+    <div class="modal-mask ">
+      <div class="modal-wrapper">
+        <div class="modal-container col-md-6">
+
+          <div class="modal-header">
+            <slot name="header">
+              default header
+            </slot>
+          </div>
+
+          <div class="modal-body">
+            <slot name="body">
+              default body
+            </slot>
+          </div>
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button btn-block btn" @click="$emit('close')">
+                Close
+              </button>
+            </slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</script>
+</body></html>

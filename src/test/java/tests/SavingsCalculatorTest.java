@@ -1,26 +1,30 @@
 package tests;
 
 import base.TestBase;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.SavingsCalculatorPage;
 
-import static org.junit.Assert.*;
-import static org.openqa.selenium.By.cssSelector;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byAttribute;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.open;
 
 public class SavingsCalculatorTest extends TestBase {
     private SavingsCalculatorPage savingsCalculatorPage;
 
+    //@Rule
+    //public TextReport textReport = new TextReport().onSucceededTest(true).OnFailedTest(true);
+
     @Before
     public void openPage() {
-        driver.get(BASE_URL.concat("/savingscalculator.php"));
-        savingsCalculatorPage = new SavingsCalculatorPage(driver);
+        open("/savingscalculator.php");
+        savingsCalculatorPage = new SavingsCalculatorPage();
+    }
+
+    @Test
+    public void itShouldEnterOneTimeInvestment(){
+        $(byAttribute("placeholder","One time investment")).sendKeys("26");
     }
 
     @Test
@@ -30,7 +34,7 @@ public class SavingsCalculatorTest extends TestBase {
         savingsCalculatorPage.enterYears(20);
         savingsCalculatorPage.enterEmail("info@furbo.sk");
 
-        assertTrue(savingsCalculatorPage.getApplyButton().isEnabled());
+        savingsCalculatorPage.getApplyButton().shouldBe(enabled);
     }
 
     @Test
@@ -40,8 +44,8 @@ public class SavingsCalculatorTest extends TestBase {
         savingsCalculatorPage.enterYears(20);
         savingsCalculatorPage.enterEmail("info@furbo.sk");
 
-        assertFalse(savingsCalculatorPage.getCalculatedTotalIncomeElement().getText().isEmpty());
-        assertFalse(savingsCalculatorPage.getCalculatedInterestIncomeElement().getText().isEmpty());
+        savingsCalculatorPage.getCalculatedTotalIncomeElement().shouldNotBe(empty).shouldHave(text("kr"));
+        savingsCalculatorPage.getCalculatedInterestIncomeElement().shouldNotBe(empty).shouldHave(text("kr"));
     }
 
     @Test
@@ -51,9 +55,8 @@ public class SavingsCalculatorTest extends TestBase {
         savingsCalculatorPage.enterYears(20);
         savingsCalculatorPage.enterEmail("info@furbo.sk");
 
-        assertFalse(savingsCalculatorPage.getCalculatedRiskElement().getText().isEmpty());
+        savingsCalculatorPage.getCalculatedRiskElement().shouldNotBe(empty);
     }
-
 
     @Test
     public void itShouldContainFundNameInNewRequest() {
@@ -66,16 +69,17 @@ public class SavingsCalculatorTest extends TestBase {
 
         savingsCalculatorPage.applyForSaving();
 
-        assertEquals(
-                fundToSelect,
-                savingsCalculatorPage.getRecentRequestDetail().findElement(cssSelector("p.fund-description")).getText()
-        );
+        savingsCalculatorPage
+                .getRecentRequestDetail()
+                .find("p.fund-description")
+                .shouldHave(exactText(fundToSelect).because("it is very important to display fund name"));
     }
 
     @Test
     public void itShouldDisplayErrorMessageWhenEmailIsInvalid() {
         savingsCalculatorPage.enterEmail("invalid");
-        assertTrue(savingsCalculatorPage.getEmailInputWrapper().getAttribute("class").contains("error"));
+
+        savingsCalculatorPage.getEmailInputWrapper().shouldHave(cssClass("error"));
     }
 
     @Test
@@ -86,11 +90,9 @@ public class SavingsCalculatorTest extends TestBase {
         savingsCalculatorPage.enterEmail("info@furbo.sk");
         savingsCalculatorPage.applyForSaving();
 
-        Actions action = new Actions(driver);
-        WebElement we = driver.findElement(By.cssSelector("div.saving-detail"));
-        action.moveToElement(we).build().perform();
-        Thread.sleep(300);
-        assertEquals("rgba(4, 102, 156, 1)", we.getCssValue("background-color"));
+        $("div.saving-detail")
+                .hover()
+                .shouldHave(cssValue("background-color","rgba(4, 102, 156, 1)"));
     }
 }
 

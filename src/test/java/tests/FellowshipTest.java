@@ -1,28 +1,31 @@
 package tests;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import base.TestBase;
+import com.codeborne.selenide.CollectionCondition;
+import com.codeborne.selenide.ElementsCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import base.TestBase;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.codeborne.selenide.Condition.cssClass;
+import static com.codeborne.selenide.Selectors.byText;
+import static com.codeborne.selenide.Selenide.*;
 
 public class FellowshipTest extends TestBase {
 
     @Before
     public void openPage() {
-        driver.get(BASE_URL + "/fellowship.php");
+        open("/fellowship.php");
     }
 
     @Test
     public void itShouldContainNameForEachFellow() {
-        List<WebElement> fellowElements = getFellowElements();
+        ElementsCollection fellowElements = getFellowElements();
 
         for (WebElement fellowElement : fellowElements) {
             Assert.assertFalse(fellowElement.findElement(By.cssSelector("h1")).getText().isEmpty());
@@ -31,7 +34,7 @@ public class FellowshipTest extends TestBase {
 
     @Test
     public void itShouldContainSpecifiedFellows() {
-        List<WebElement> fellowElements = getFellowElements();
+        ElementsCollection fellowElements = getFellowElements();
         List<String> fellowNames = new ArrayList<String>();
 
         for (WebElement fellowElement : fellowElements) {
@@ -56,12 +59,12 @@ public class FellowshipTest extends TestBase {
             selectFellow(fellowToSelect);
         }
 
-        Assert.assertEquals("Complete", driver.findElement(By.cssSelector("div.points-left h3")).getText());
+        Assert.assertEquals("Complete", $(By.cssSelector("div.points-left h3")).getText());
     }
 
     @Test
     public void itShouldDisplayPointsForEachFellow() {
-        List<WebElement> displayedFellows = getFellowElements();
+        ElementsCollection displayedFellows = getFellowElements();
         for (WebElement displayedFellow : displayedFellows) {
 
             String actualPoints = displayedFellow.findElement(By.cssSelector("div.fellow-points h2")).getText();
@@ -82,22 +85,18 @@ public class FellowshipTest extends TestBase {
             selectFellow(fellowToSelect);
         }
 
-        List<String> higlightedFellows =
-                driver.findElements(By.xpath("//ul[contains(@class,'list-of-fellows')]/li/div[contains(@class,'active')]//h1"))
-                        .stream()
-                        .map(WebElement::getText)
-                        .collect(Collectors.toList());
-
-        for (String higlightedFellow : higlightedFellows) {
-            Assert.assertTrue(fellowsToSelect.contains(higlightedFellow));
-        }
+        $("ul.list-of-fellows")
+                .findAll("li > div")
+                .filterBy(cssClass("active"))
+                .shouldHave(CollectionCondition.textsInAnyOrder(fellowsToSelect));
     }
 
     private void selectFellow(String fellowName) {
-        driver.findElement(By.xpath("//h1[contains(text(),'" + fellowName + "')]")).click();
+        //   $x("//h1[contains(text(),'" + fellowName + "')]").click();
+        $(byText(fellowName)).click();
     }
 
-    private List<WebElement> getFellowElements() {
-        return driver.findElements(By.cssSelector("ul.list-of-fellows li"));
+    private ElementsCollection getFellowElements() {
+       return  $("ul.list-of-fellows").findAll("li");
     }
 }

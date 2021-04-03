@@ -1,21 +1,20 @@
 package tests;
 
-import java.util.List;
-
+import base.TestBase;
+import com.codeborne.selenide.ElementsCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
-import base.TestBase;
+import static com.codeborne.selenide.Selenide.*;
 
 public class RandomTableTest extends TestBase {
     @Before
     public void openPage() {
         //1.otvorit stranku
-        driver.get(BASE_URL + "/tabulka.php");
+        open("/tabulka.php");
     }
 
     @Test
@@ -27,7 +26,7 @@ public class RandomTableTest extends TestBase {
 
     @Test
     public void itShouldContainNameForEachRow() {
-        List<WebElement> tableRows = getRows();
+        ElementsCollection tableRows = getRows();
         for (WebElement tableRow : tableRows) {
             tableRow.findElement(By.cssSelector("td:nth-child(2)"));
             WebElement rowName = tableRow.findElement(By.xpath("./td[2]"));
@@ -36,12 +35,17 @@ public class RandomTableTest extends TestBase {
     }
 
     @Test
-    public void itShouldScrollToLastElement() {
-        WebElement lastRow = driver.findElement(By.cssSelector("table > tbody > tr:last-child"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastRow);
+    public void itShouldDisplaySecondRow() {
+
+        System.out.println($("table > tbody >tr",1).find("td",3).getText());
     }
 
-    private List<WebElement> getRows() {
-        return driver.findElements(By.cssSelector("table tbody tr"));
+    @Test
+    public void itShouldScrollToLastElement() {
+        $(By.cssSelector("table > tbody >tr:last-child")).scrollIntoView(false);
+    }
+
+    private ElementsCollection getRows() {
+        return $$("table tbody tr");
     }
 }
